@@ -213,7 +213,7 @@ public class ExpandableUploadListAdapter extends BaseExpandableListAdapter imple
             final OCUpload upload = uploadsItems[position];
 
             // local file name
-            TextView fileTextView = (TextView) view.findViewById(R.id.upload_name);
+            TextView fileTextView = view.findViewById(R.id.upload_name);
             File remoteFile = new File(upload.getRemotePath());
             String fileName = remoteFile.getName();
             if (fileName.length() == 0) {
@@ -222,12 +222,12 @@ public class ExpandableUploadListAdapter extends BaseExpandableListAdapter imple
             fileTextView.setText(fileName);
 
             // remote path to parent folder
-            TextView pathTextView = (TextView) view.findViewById(R.id.upload_remote_path);
+            TextView pathTextView = view.findViewById(R.id.upload_remote_path);
             String remoteParentPath = new File(upload.getRemotePath()).getParent();
             pathTextView.setText(remoteParentPath);
 
             // file size
-            TextView fileSizeTextView = (TextView) view.findViewById(R.id.upload_file_size);
+            TextView fileSizeTextView = view.findViewById(R.id.upload_file_size);
             if (upload.getFileSize() != 0) {
                 fileSizeTextView.setText(DisplayUtils.bytesToHumanReadable(upload.getFileSize()) + ", ");
             } else {
@@ -235,7 +235,7 @@ public class ExpandableUploadListAdapter extends BaseExpandableListAdapter imple
             }
 
             //* upload date
-            TextView uploadDateTextView = (TextView) view.findViewById(R.id.upload_date);
+            TextView uploadDateTextView = view.findViewById(R.id.upload_date);
             long updateTime = upload.getUploadEndTimestamp();
             CharSequence dateString = DisplayUtils.getRelativeDateTimeString(
                     mParentActivity,
@@ -246,7 +246,7 @@ public class ExpandableUploadListAdapter extends BaseExpandableListAdapter imple
             );
             uploadDateTextView.setText(dateString);
 
-            TextView accountNameTextView = (TextView) view.findViewById(R.id.upload_account);
+            TextView accountNameTextView = view.findViewById(R.id.upload_account);
             Account account = AccountUtils.getOwnCloudAccountByName(mParentActivity, upload.getAccountName());
             if (account != null) {
                 accountNameTextView.setText(
@@ -257,9 +257,9 @@ public class ExpandableUploadListAdapter extends BaseExpandableListAdapter imple
                 accountNameTextView.setText(upload.getAccountName());
             }
 
-            TextView statusTextView = (TextView) view.findViewById(R.id.upload_status);
+            TextView statusTextView = view.findViewById(R.id.upload_status);
 
-            ProgressBar progressBar = (ProgressBar) view.findViewById(R.id.upload_progress_bar);
+            ProgressBar progressBar = view.findViewById(R.id.upload_progress_bar);
 
             /// Reset fields visibility
             uploadDateTextView.setVisibility(View.VISIBLE);
@@ -331,7 +331,7 @@ public class ExpandableUploadListAdapter extends BaseExpandableListAdapter imple
 
             /// bind listeners to perform actions
             /// bind listeners to perform actions
-            ImageButton rightButton = (ImageButton) view.findViewById(R.id.upload_right_button);
+            ImageButton rightButton = view.findViewById(R.id.upload_right_button);
             if (upload.getUploadStatus() == UploadStatus.UPLOAD_IN_PROGRESS) {
                 //Cancel
                 rightButton.setImageResource(R.drawable.ic_action_cancel_grey);
@@ -402,7 +402,7 @@ public class ExpandableUploadListAdapter extends BaseExpandableListAdapter imple
             }
 
             /// Set icon or thumbnail
-            ImageView fileIcon = (ImageView) view.findViewById(R.id.thumbnail);
+            ImageView fileIcon = view.findViewById(R.id.thumbnail);
             fileIcon.setImageResource(R.drawable.file);
 
             /*
@@ -605,6 +605,9 @@ public class ExpandableUploadListAdapter extends BaseExpandableListAdapter imple
                         status = mParentActivity.getString(
                                 R.string.uploads_view_upload_status_waiting_exit_power_save_mode);
                         break;
+                    case VIRUS_DETECTED:
+                        status = mParentActivity.getString(R.string.uploads_view_upload_status_virus_detected);
+                        break;
                     default:
                         status = "New fail result but no description for the user";
                         break;
@@ -715,7 +718,7 @@ public class ExpandableUploadListAdapter extends BaseExpandableListAdapter imple
                     .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             convertView = inflaInflater.inflate(R.layout.upload_list_group, null);
         }
-        TextView tv = (TextView) convertView.findViewById(R.id.uploadListGroupName);
+        TextView tv = convertView.findViewById(R.id.uploadListGroupName);
         tv.setText(String.format(mParentActivity.getString(R.string.uploads_view_group_header),
                 group.getGroupName(), group.getGroupItemCount()));
         tv.setTextColor(ThemeUtils.primaryAccentColor());
