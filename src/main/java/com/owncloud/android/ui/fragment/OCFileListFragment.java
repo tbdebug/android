@@ -1184,16 +1184,14 @@ public class OCFileListFragment extends ExtendedListFragment implements OCFileLi
         }
     }
 
-
     private void updateLayout() {
-        if (!mJustFolders) {
-            // decide grid vs list view
-            if ( AccountUtils.getServerVersion(((FileActivity) mContainerActivity).getAccount())
-            .supportsRemoteThumbnails() && isGridViewPreferred(mFile)) {
-                switchToGridView();
-            } else {
-                switchToListView();
-            
+        // decide grid vs list view
+        if (AccountUtils.getServerVersion(((FileActivity) mContainerActivity).getAccount())
+                .supportsRemoteThumbnails() && isGridViewPreferred(mFile)) {
+            switchToGridView();
+        } else {
+            switchToListView();
+
         }
 
         invalidateActionMode();
