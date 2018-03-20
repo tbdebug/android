@@ -23,6 +23,7 @@ package com.owncloud.android.ui.helpers;
 
 import android.accounts.Account;
 import android.content.ActivityNotFoundException;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -52,7 +53,6 @@ import com.owncloud.android.lib.resources.shares.ShareType;
 import com.owncloud.android.lib.resources.status.OwnCloudVersion;
 import com.owncloud.android.operations.SynchronizeFileOperation;
 import com.owncloud.android.services.OperationsService;
-import com.owncloud.android.services.observer.FileObserverService;
 import com.owncloud.android.ui.activity.ConflictsResolveActivity;
 import com.owncloud.android.ui.activity.FileActivity;
 import com.owncloud.android.ui.activity.ShareActivity;
@@ -386,8 +386,7 @@ public class FileOperationsHelper {
      */
     public boolean isSharedSupported() {
         if (mFileActivity.getAccount() != null) {
-            OwnCloudVersion serverVersion = AccountUtils.getServerVersion(mFileActivity.getAccount());
-            return (serverVersion != null && serverVersion.isSharedSupported());
+            return AccountUtils.getServerVersion(mFileActivity.getAccount()).isSharedSupported();
         }
         return false;
     }
@@ -552,9 +551,7 @@ public class FileOperationsHelper {
         if (hideFileListing) {
             updateShareIntent.putExtra(OperationsService.EXTRA_SHARE_PERMISSIONS, OCShare.CREATE_PERMISSION_FLAG);
         } else {
-            OwnCloudVersion serverVersion = AccountUtils.getServerVersion(mFileActivity.getAccount());
-
-            if (serverVersion != null && serverVersion.isNotReshareableFederatedSupported()) {
+            if (AccountUtils.getServerVersion(mFileActivity.getAccount()).isNotReshareableFederatedSupported()) {
                 updateShareIntent.putExtra(OperationsService.EXTRA_SHARE_PERMISSIONS,
                         OCShare.FEDERATED_PERMISSIONS_FOR_FOLDER_AFTER_OC9);
             } else {
@@ -572,7 +569,7 @@ public class FileOperationsHelper {
     public boolean isSearchUserSupportedSupported() {
         if (mFileActivity.getAccount() != null) {
             OwnCloudVersion serverVersion = AccountUtils.getServerVersion(mFileActivity.getAccount());
-            return (serverVersion != null && serverVersion.isSearchUsersSupported());
+            return serverVersion.isSearchUsersSupported();
         }
         return false;
     }
@@ -594,12 +591,13 @@ public class FileOperationsHelper {
         }
     }
 
-    public void sendCachedImage(OCFile file) {
+    public void sendCachedImage(OCFile file, String packageName, String activityName) {
         if (file != null) {
             Context context = MainApp.getAppContext();
             Intent sendIntent = new Intent(Intent.ACTION_SEND);
             // set MimeType
             sendIntent.setType(file.getMimetype());
+            sendIntent.setComponent(new ComponentName(packageName, activityName));
             sendIntent.putExtra(Intent.EXTRA_STREAM, Uri.parse("content://" +
                     context.getResources().getString(R.string.image_cache_provider_authority) +
                     file.getRemotePath()));
@@ -722,19 +720,6 @@ public class FileOperationsHelper {
         if (file.isAvailableOffline() != isAvailableOffline) {
             file.setAvailableOffline(isAvailableOffline);
             mFileActivity.getStorageManager().saveFile(file);
-
-            /// register the OCFile instance in the observer service to monitor local updates
-            Intent observedFileIntent = FileObserverService.makeObservedFileIntent(
-                    mFileActivity,
-                    file,
-                    mFileActivity.getAccount(),
-                    isAvailableOffline);
-
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-                mFileActivity.startForegroundService(observedFileIntent);
-            } else {
-                mFileActivity.startService(observedFileIntent);
-            }
 
             /// immediate content synchronization
             if (file.isAvailableOffline()) {
@@ -866,9 +851,7 @@ public class FileOperationsHelper {
      */
     public boolean isVersionWithForbiddenCharacters() {
         if (mFileActivity.getAccount() != null) {
-            OwnCloudVersion serverVersion =
-                    AccountUtils.getServerVersion(mFileActivity.getAccount());
-            return (serverVersion != null && serverVersion.isVersionWithForbiddenCharacters());
+            return AccountUtils.getServerVersion(mFileActivity.getAccount()).isVersionWithForbiddenCharacters();
         }
         return false;
     }

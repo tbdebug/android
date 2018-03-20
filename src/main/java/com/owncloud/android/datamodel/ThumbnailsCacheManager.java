@@ -286,7 +286,8 @@ public class ThumbnailsCacheManager {
                 } else {
                     // Download thumbnail from server
                     OwnCloudVersion serverOCVersion = AccountUtils.getServerVersion(account);
-                    if (mClient != null && serverOCVersion != null) {
+
+                    if (mClient != null) {
                         if (serverOCVersion.supportsRemoteThumbnails()) {
                             GetMethod getMethod = null;
                             try {
@@ -528,10 +529,15 @@ public class ThumbnailsCacheManager {
                     }
 
                 } else {
-                    // Download thumbnail from server
-                    OwnCloudVersion serverOCVersion = AccountUtils.getServerVersion(mAccount);
-                    if (mClient != null && serverOCVersion != null) {
-                        if (serverOCVersion.supportsRemoteThumbnails()) {
+                    // check if resized version is available
+                    String resizedImageKey = PREFIX_RESIZED_IMAGE + String.valueOf(file.getRemoteId());
+                    Bitmap resizedImage = getBitmapFromDiskCache(resizedImageKey);
+
+                    if (resizedImage != null) {
+                        thumbnail = ThumbnailUtils.extractThumbnail(resizedImage, pxW, pxH);
+                    } else {
+                        // Download thumbnail from server
+                        if (mClient != null && AccountUtils.getServerVersion(mAccount).supportsRemoteThumbnails()) {
                             getMethod = null;
                             try {
                                 // thumbnail
@@ -559,13 +565,6 @@ public class ThumbnailsCacheManager {
                                 if (file.getMimetype().equalsIgnoreCase(PNG_MIMETYPE)) {
                                     thumbnail = handlePNG(thumbnail, pxW, pxH);
                                 }
-
-                                // Add thumbnail to cache
-                                if (thumbnail != null) {
-                                    Log_OC.d(TAG, "add thumbnail to cache: " + file.getFileName());
-                                    addBitmapToCache(imageKey, thumbnail);
-                                }
-
                             } catch (Exception e) {
                                 Log_OC.d(TAG, e.getMessage(), e);
                             } finally {
@@ -576,6 +575,12 @@ public class ThumbnailsCacheManager {
                         } else {
                             Log_OC.d(TAG, "Server too old");
                         }
+                    }
+
+                    // Add thumbnail to cache
+                    if (thumbnail != null) {
+                        Log_OC.d(TAG, "add thumbnail to cache: " + file.getFileName());
+                        addBitmapToCache(imageKey, thumbnail);
                     }
                 }
             }
@@ -838,7 +843,7 @@ public class ThumbnailsCacheManager {
 
             // Download avatar from server
             OwnCloudVersion serverOCVersion = AccountUtils.getServerVersion(mAccount);
-            if (mClient != null && serverOCVersion != null) {
+            if (mClient != null) {
                 if (serverOCVersion.supportsRemoteThumbnails()) {
                     GetMethod get = null;
                     try {

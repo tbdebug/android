@@ -42,6 +42,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.Parcelable;
+import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
@@ -84,7 +85,6 @@ import com.owncloud.android.operations.RemoveFileOperation;
 import com.owncloud.android.operations.RenameFileOperation;
 import com.owncloud.android.operations.SynchronizeFileOperation;
 import com.owncloud.android.operations.UploadFileOperation;
-import com.owncloud.android.services.observer.FileObserverService;
 import com.owncloud.android.syncadapter.FileSyncAdapter;
 import com.owncloud.android.ui.dialog.SendShareDialog;
 import com.owncloud.android.ui.dialog.SortingOrderDialogFragment;
@@ -185,19 +185,6 @@ public class FileDisplayActivity extends HookActivity
 
         super.onCreate(savedInstanceState); // this calls onAccountChanged() when ownCloud Account
         // is valid
-
-        /// grant that FileObserverService is watching favorite files
-        if (savedInstanceState == null) {
-            Intent initObserversIntent = FileObserverService.makeInitIntent(this);
-
-            if (FileObserverService.shouldStart()) {
-                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-                    this.startForegroundService(initObserversIntent);
-                } else {
-                    this.startService(initObserversIntent);
-                }
-            }
-        }
 
         /// Load of saved instance state
         if (savedInstanceState != null) {
@@ -342,8 +329,8 @@ public class FileDisplayActivity extends HookActivity
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode,
-                                           String permissions[], int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[],
+                                           @NonNull int[] grantResults) {
         switch (requestCode) {
             case PermissionUtil.PERMISSIONS_WRITE_EXTERNAL_STORAGE: {
                 // If request is cancelled, result arrays are empty.
@@ -1002,8 +989,12 @@ public class FileDisplayActivity extends HookActivity
     }
 
     private boolean isSearchOpen() {
-        final View mSearchEditFrame = searchView.findViewById(android.support.v7.appcompat.R.id.search_edit_frame);
-        return (mSearchEditFrame != null && mSearchEditFrame.getVisibility() == View.VISIBLE);
+        if (searchView == null) {
+            return false;
+        } else {
+            View mSearchEditFrame = searchView.findViewById(android.support.v7.appcompat.R.id.search_edit_frame);
+            return (mSearchEditFrame != null && mSearchEditFrame.getVisibility() == View.VISIBLE);
+        }
     }
 
     private void revertBottomNavigationBarToAllFiles() {

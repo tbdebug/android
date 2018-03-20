@@ -32,6 +32,7 @@ configurations.all {
 ext {
     supportLibraryVersion = '26.1.0'
     googleLibraryVersion = '11.2.2'
+    androidLibraryVersion = '1.0.39'
 
     travisBuild = System.getenv("TRAVIS") == "true"
 
@@ -84,7 +85,7 @@ android {
 
         multiDexEnabled true
 
-        versionCode versionMajor * 10000000 + versionMinor * 100000 + versionPatch * 100 + versionBuild
+        versionCode versionMajor * 10000000 + versionMinor * 10000 + versionPatch * 100 + versionBuild
 
         if (versionBuild > 98) {
             versionName "${versionMajor}.${versionMinor}.${versionPatch}"
@@ -114,8 +115,8 @@ android {
             versionDev {
                 applicationId "com.netcloud.android.beta"
                 dimension "default"
-                versionCode 20180313
-                versionName "20180313"
+                versionCode 20180320
+                versionName "20180320"
             }
         }
     }
@@ -195,7 +196,8 @@ dependencies {
     // dependencies for app building
     implementation 'com.android.support:multidex:1.0.2'
 //    implementation project('nextcloud-android-library')
-    implementation 'com.github.nextcloud:android-library:1.0.39'
+    genericImplementation "com.github.nextcloud:android-library:${androidLibraryVersion}"
+    gplayImplementation "com.github.nextcloud:android-library:${androidLibraryVersion}"
     versionDevImplementation 'com.github.nextcloud:android-library:master-SNAPSHOT' // use always latest master
     implementation "com.android.support:support-v4:${supportLibraryVersion}"
     implementation "com.android.support:design:${supportLibraryVersion}"
@@ -207,7 +209,7 @@ dependencies {
     implementation 'com.github.albfernandez:juniversalchardet:v2.0.0'
     implementation 'com.google.code.findbugs:annotations:2.0.1'
     implementation 'commons-io:commons-io:2.5'
-    implementation 'com.github.evernote:android-job:v1.2.2'
+    implementation 'com.github.evernote:android-job:v1.2.5'
     implementation 'com.jakewharton:butterknife:8.8.1'
     annotationProcessor 'com.jakewharton:butterknife-compiler:8.8.1'
     implementation 'org.greenrobot:eventbus:3.0.0'
